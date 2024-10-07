@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->string('code', 6)->unique('otc');
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
             $table->timestamp('expired_at')->nullable();
         });
     }

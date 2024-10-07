@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\LoginRequest;
 use App\Models\OTC;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -14,12 +15,18 @@ class AuthController extends Controller
 {
     public function Login(LoginRequest $request)
     {
+        // dd($request->all());
         $request->validated();
 
         $user = User::query()->firstWhere([
-            'email' => $request->email,
             'phone_number' => $request->phone_number,
+            'email' => $request->email,
         ]);
+        // $query = User::query()->where('phone_number', $request->phone_number);
+        // if ($request->email) {
+        //     $query->where('email', $request->email);
+        // }
+        // $user = $query->first();
 
         if (!$user) {
             return response(
@@ -38,9 +45,12 @@ class AuthController extends Controller
                 $pin = random_int(100009, 199999);
             }
         }
-        $saved_otc = OTC::create([
+        $saved_otc =  OTC::updateOrCreate([
+            'user_id' => $user->id
+        ], [
             'user_id' => $user->id,
             'code' => $pin,
+            'expired_at' => Carbon::now()->addMinutes(5)
         ]);
 
         // Send OTC via SMS
@@ -67,18 +77,18 @@ class AuthController extends Controller
     public function  validateOTC(Request $request)
     {
         $request->validate([
-            'otc' => 'required',
-            'user_id' => 'required', //|exists:users,id',
+            'otc' => 'required|exists:login_otc,code',
+            'user_id' => 'required|exists:users,id',
             'device' => 'nullable|string',
         ]);
 
-        $otc = OTC::with('user')->firstWhere(['user_id' => $request->id, 'code' => $request->otc]);
+        $otc = OTC::with('user')->firstWhere(['user_id' => $request->user_id, 'code' => $request->otc]);
 
         if (!$otc) {
             return response(['error' => true, 'message' => 'Invalid OTC'], 422);
         }
 
-        $user_id = $otc->user->id;        
+        $user_id = $otc->user->id;
         $user = User::query()->find($user_id);
         $token = $user->createToken($request->device ?? 'access_token', ['*'])->plainTextToken;
 
@@ -106,14 +116,15 @@ class AuthController extends Controller
             $otc = random_int(100009, 199999);
         }
         $user = User::query()->firstWhere([
-            'email' => $request->email,
             'phone_number' => $request->phone_number,
+            'email' => $request->email,
         ]);
-        $pin = OTC::query()->where('user_id', $user->id)
-            ->updateOrCreate(
-                ['user_id' => $user->id],
-                ['user_id' => $user->id, 'code' => $otc]
-            );
+        $pin = OTC::where('user_id', $user->id)->update(
+            [
+                'user_id' => $user->id,
+                'code' => $otc
+            ]
+        );
         try {
             // Code... to continue
             // Resend OTC via SMS to the user's phone number
@@ -122,7 +133,7 @@ class AuthController extends Controller
             return response(['error' => true, 'message' => $e->getMessage()], 500);
         }
         return response([
-            'sucess' => true,
+            'success' => true,
             'data' => [
                 'user' => $user,
                 'otc' => $pin->code,

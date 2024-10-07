@@ -21,10 +21,17 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'email' => 'required|exists:users,email',
+        $commonRules = [
             'phone_number' => 'required|numeric|exists:users,phone_number',
         ];
+
+        if (!request()->has('email')) {
+            return $commonRules;
+        }
+
+        return array_merge($commonRules, [
+            'email' => 'required|exists:users,email',
+        ]);
     }
     public function messages()
     {
@@ -32,7 +39,7 @@ class LoginRequest extends FormRequest
             'email.required' => 'email is required to login',
             'email.exists' => 'the provided email does not exist',
             'phone_number.required' => 'phone number is required to login',
-            // 'phone_number.numeric' => 'phone number must be only numbers',
+            'phone_number.numeric' => 'phone number must be only numbers',
             'phone_number.exists' => 'the provided phone number does not exist',
         ];
     }

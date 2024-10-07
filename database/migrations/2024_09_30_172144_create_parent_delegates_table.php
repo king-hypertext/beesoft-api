@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('parent_delegates', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('parent_id')->constrained('org_parents');
+            $table->string('name');
+            $table->string('address');
+            $table->integer('phone_number');
             $table->timestamps();
         });
     }

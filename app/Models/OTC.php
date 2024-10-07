@@ -12,6 +12,7 @@ class OTC extends Model
     protected $fillable = [
         'user_id',
         'code',
+        'expired_at'
     ];
     public function user()
     {

@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('org_parents', function (Blueprint $table) {
             $table->id();
-            
+            $table->string('name');
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('organization_id')->constrained('organizations');
+            $table->string('address');
+            $table->integer('phone_number');
+            $table->foreignId('account_status')->default(1)->constrained('account_status');
             $table->timestamps();
         });
     }

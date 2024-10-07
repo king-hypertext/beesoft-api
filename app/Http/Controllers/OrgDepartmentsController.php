@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Organization;
 use App\Models\OrgDepartments;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrgDepartmentsController extends Controller
 {
@@ -12,7 +14,11 @@ class OrgDepartmentsController extends Controller
      */
     public function index()
     {
-        //
+        $data = OrgDepartments::where('organization_id', '=', Organization::firstWhere('user_id', Auth::id())->id);
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
     /**
@@ -20,7 +26,7 @@ class OrgDepartmentsController extends Controller
      */
     public function create()
     {
-        //
+        abort(404);
     }
 
     /**
@@ -28,7 +34,21 @@ class OrgDepartmentsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'description',
+            'purpose'
+        ]);
+        $dep = OrgDepartments::create([
+            'organization_id' => Organization::firstWhere('user_id', Auth::id())->id,
+            'name' => $request->name,
+            'description' => $request->description ?? null,
+            'purpose' => $request->purpose ?? null,
+        ]);
+        return response()->json([
+            'success' => true,
+            'data' => $dep
+        ], 201);
     }
 
     /**
@@ -36,7 +56,15 @@ class OrgDepartmentsController extends Controller
      */
     public function show(OrgDepartments $orgDepartments)
     {
-        //
+        if (!$orgDepartments) {
+            return response()->json([
+                'message' => 'Department not found',
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'data' => $orgDepartments
+        ], 302);
     }
 
     /**
@@ -44,7 +72,7 @@ class OrgDepartmentsController extends Controller
      */
     public function edit(OrgDepartments $orgDepartments)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -52,7 +80,21 @@ class OrgDepartmentsController extends Controller
      */
     public function update(Request $request, OrgDepartments $orgDepartments)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'description',
+            'purpose'
+        ]);
+        $orgDepartments->update([
+            'organization_id' => Organization::firstWhere('user_id', Auth::id())->id,
+            'name' => $request->name,
+            'description' => $request->description ?? null,
+            'purpose' => $request->purpose ?? null,
+        ]);
+        return response()->json([
+            'success' => true,
+            'data' => $orgDepartments->fresh()
+        ], 200);
     }
 
     /**
@@ -60,6 +102,7 @@ class OrgDepartmentsController extends Controller
      */
     public function destroy(OrgDepartments $orgDepartments)
     {
-        //
+        $orgDepartments->delete();
+        return response()->noContent();
     }
 }

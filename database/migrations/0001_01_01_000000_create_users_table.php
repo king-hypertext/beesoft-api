@@ -15,12 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('email')->nullable()->unique('user_email');
             $table->integer('phone_number')->unique('phone_number');
-            $table->foreignId('role')->constrained('user_roles')->default('admin');
-            $table->timestamp('email_verified_at')->nullable();
+            $table->foreignId('role_id')->constrained('user_roles')->default('admin');
             $table->string('fullname');
             $table->string('image')->nullable();
-            $table->enum('account_status', [1, 0])->default(1);
-            $table->string('password');
+            $table->foreignId('account_status_id')->constrained('account_status');
             $table->rememberToken();
             $table->timestamps();
         });

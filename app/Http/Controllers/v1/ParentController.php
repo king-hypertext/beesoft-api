@@ -33,9 +33,10 @@ class ParentController extends Controller
     {
         if ($user) {
             return response()->json([
-                'data' => $user->with(['children', 'delegates', 'organization'])->withCount('delegates', 'children', 'organization'),
+                'data' => $user->with(['children', 'delegates', 'organization'])
+                    ->withCount('delegates', 'children', 'organization'),
                 'message' => 'User retrieved successfully'
-            ]);
+            ]);     
         }
         return response()->json([
             'error' => true,
@@ -49,6 +50,7 @@ class ParentController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        abort(403);
         $request->validate([], []);
         $user->update([]);
         return response()->json([
@@ -73,7 +75,7 @@ class ParentController extends Controller
                 'additional_info' => 'User not authenticated'
             ], 404);
         }
-        if($user->children()->count() == 0) {
+        if ($user->children()->count() == 0) {
             return response()->json([
                 'success' => true,
                 'message' => 'No children found for this user',

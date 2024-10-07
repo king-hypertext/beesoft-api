@@ -13,15 +13,15 @@ class OrganizationPolicy
      */
     public function viewAny(User $user): bool
     {
-        // 
+        return $user->role === 'super-admin';
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Organization $organization): bool
+    public function view(User $user, Organization $organization): bool|Response
     {
-        //
+        return $user->id === $organization->user->id ? true : Response::denyWithStatus(302, 'You are not allowed to view this resource');
     }
 
     /**
@@ -29,7 +29,7 @@ class OrganizationPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->role === 'admin' || $user->role === 'super-admin' ? true : Response::deny('You are not allowed to create this resource');
     }
 
     /**
@@ -37,7 +37,7 @@ class OrganizationPolicy
      */
     public function update(User $user, Organization $organization): bool
     {
-        //
+        return $user->id === $organization->user->id ? true : Response::denyWithStatus(302, 'You are not allowed to update this resource');
     }
 
     /**
@@ -45,21 +45,19 @@ class OrganizationPolicy
      */
     public function delete(User $user, Organization $organization): bool
     {
-        //
+        return $user->role === 'admin' || $user->role === 'super-admin' ? true : Response::deny('You are not allowed to create this resource');
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Organization $organization): bool
-    {
-    }
+    public function restore(User $user, Organization $organization): bool {}
 
     /**
      * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user, Organization $organization): bool
     {
-        //
+        return $user->role === 'admin' || $user->role === 'super-admin' ? true : Response::deny('You are not allowed to create this resource');
     }
 }

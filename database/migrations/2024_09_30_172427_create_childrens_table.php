@@ -17,10 +17,11 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('middle_name')->nullable();
             $table->date('birth_date');
-            $table->foreignId('parent_id')->constrained('org_parents');
             $table->string('image')->nullable();
+            $table->foreignId('parent_id')->constrained('org_parents');
             $table->foreignId('organization_id')->constrained('organizations');
             $table->foreignId('department_id')->constrained('org_departments');
+            $table->foreignId('account_status')->constrained('account_status');
             $table->timestamps();
         });
     }

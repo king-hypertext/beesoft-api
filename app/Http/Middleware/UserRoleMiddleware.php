@@ -16,7 +16,7 @@ class UserRoleMiddleware
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         foreach ($roles as $role) {
-            if (!$request->user()->role($role)) {
+            if (!$request->user()->hasRole($role)) {
                 return response()->json(['message' => 'Unauthorized', 'additional_info' => 'You are not allowed to perform this acction'], Response::HTTP_UNAUTHORIZED);
             }
         }
