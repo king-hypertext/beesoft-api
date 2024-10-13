@@ -18,7 +18,7 @@ class OrgDepartmentsFactory extends Factory
     public function definition(): array
     {
         return [
-            'organization_id' => 1,
+            'organization_id' => Organization::factory(),
             'name' => $this->faker->company,
             'description' => $this->faker->optional()->paragraph,
         ];

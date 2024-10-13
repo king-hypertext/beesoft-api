@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\v1;
 
-use App\Models\v1\OrgUsersController;
+use App\Http\Controllers\Controller;
+use App\Models\Card;
 use Illuminate\Http\Request;
 
-class OrgUsersControllerController extends Controller
+class ManageCardsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -26,7 +27,7 @@ class OrgUsersControllerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(OrgUsersController $orgUsersController)
+    public function show(Card $card)
     {
         //
     }
@@ -34,7 +35,7 @@ class OrgUsersControllerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, OrgUsersController $orgUsersController)
+    public function update(Request $request, Card $card)
     {
         //
     }
@@ -42,7 +43,7 @@ class OrgUsersControllerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(OrgUsersController $orgUsersController)
+    public function destroy(Card $card)
     {
         //
     }

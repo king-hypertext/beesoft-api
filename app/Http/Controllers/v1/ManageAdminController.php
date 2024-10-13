@@ -18,7 +18,7 @@ class ManageAdminController extends Controller
 
         Gate::authorize('viewAny');
         return UserResource::collection(User::with(['user_settings', 'user_role']));
-    }
+    } 
 
     /**
      * Store a newly created resource in storage.

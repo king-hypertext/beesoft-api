@@ -25,6 +25,7 @@ class Organization extends Model
         'account_status_id',
     ];
     protected $with = ['account_status', 'delegates', /*'users','user', 'location', 'phone_numbers', 'admins', */ 'departments'];
+    protected $withCount = ['departments'];
     public function user()
     {
         return $this->belongsTo(User::class); //admin user

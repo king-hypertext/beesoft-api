@@ -33,12 +33,10 @@ class AdminController extends Controller
     public function show()
     {
 
-        $user = request()->user()?: User::first();
-        $org = Organization::firstWhere(['user_id' => $user->id]);
+        $user = request()->user();
         return response()->json([
             'success' => true,
             'user' => $user,
-            // 'data' => $org !== null ?  OrganizationResource::collection($org->with('category', 'account_status')) : 'no data available'
         ]);
     }
 
@@ -55,22 +53,36 @@ class AdminController extends Controller
      */
     public function update(Request $request)
     {
-        $id = Auth::id();
-        $user = User::find($id);
-        // $org = Organization::query()->firstWhere('user_id', $auth_user->id);
+        $user = $request->user();
+
+        $validatedData = $request->validate([
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'phone_number' => 'required|string|max:255|unique:users,phone_number,' . $user->id,
+            'image' => 'nullable|file|mimes:png,jpg,jpeg,webp'
+        ]); 
+
+        if ($request->hasFile('image')) {
+            $validatedData['image'] = $request->file('image')->store('users/images', 'public');
+        }
+
+        $user->update([
+            'email' => $validatedData['email'],
+            'phone_number' => $validatedData['phone_number'],
+            'image' => $validatedData['image'] ?? $user->image,
+        ]);
 
         return response()->json([
             'success' => true,
-            'data' => OrganizationResource::collection($user->organization()->with('category', 'accout_status'))
+            'data' => $user->fresh(),
         ]);
-        //
     }
+
 
     /**
      * Remove the resource from storage.
      */
     public function destroy(): never
     {
-        abort(404);
+        abort(403);
     }
 }

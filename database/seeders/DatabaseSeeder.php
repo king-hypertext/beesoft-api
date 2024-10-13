@@ -19,7 +19,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
         // $roles = ['super-admin', 'sub-admin', 'admin', 'user', 'security', 'front-desk'];
         // foreach ($roles as $role) {
         //     UserRole::create([
@@ -32,6 +31,7 @@ class DatabaseSeeder extends Seeder
         //         'status' => $status,
         //     ]);
         // }
+        // User::factory(10)->create();
         // User::create([
         //     'email' => 'super.admin@example.com',
         //     'phone_number' => '1234567890',
@@ -42,6 +42,6 @@ class DatabaseSeeder extends Seeder
         // OrgDepartments::factory(5)->create();
         // OrgUser::factory(10)->create();
         // Card::factory(20)->create();
-        OrgParent::factory(2)->create();
+        // OrgParent::factory(9)->create();
     }
 }

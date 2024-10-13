@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class OrgUser extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $with = ['delegates', 'card',  'department', 'organization'];
+    protected $with = ['delegates',  'department', 'card'];
     protected $withCount = ['delegates'];
     protected $fillable = [
         'organization_id',
@@ -22,7 +22,7 @@ class OrgUser extends Model
         'gender',
         'parental_action',
         'voice',
-    ];
+    ]; 
     public function organization()
     {
         return $this->belongsTo(Organization::class);

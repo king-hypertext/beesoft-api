@@ -21,7 +21,7 @@ class OrganizationPolicy
      */
     public function view(User $user, Organization $organization): bool|Response
     {
-        return $user->id === $organization->user->id ? true : Response::denyWithStatus(302, 'You are not allowed to view this resource');
+        return $user->id === $organization->user->id ? true : Response::denyWithStatus(403, 'You are not allowed to view this resource');
     }
 
     /**
@@ -37,7 +37,7 @@ class OrganizationPolicy
      */
     public function update(User $user, Organization $organization): bool
     {
-        return $user->id === $organization->user->id ? true : Response::denyWithStatus(302, 'You are not allowed to update this resource');
+        return $user->id === $organization->user->id ? true : Response::denyWithStatus(403, 'You are not allowed to update this resource');
     }
 
     /**

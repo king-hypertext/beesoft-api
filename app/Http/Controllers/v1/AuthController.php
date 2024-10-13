@@ -62,11 +62,11 @@ class AuthController extends Controller
         return response([
             'sucess' => true,
             'data' => [
-                'user' => new UserResource($user),
                 'otc' => $saved_otc->code,
                 'access_token' => null,
                 'is_authenticated' => false,
                 'otc_sent' => true,
+                'user' => new UserResource($user),
             ],
         ], 200);
     }
@@ -94,10 +94,10 @@ class AuthController extends Controller
         return response([
             'success' => true,
             'data' => [
-                'user' => $user,
                 'access_token' => $token,
                 'is_authenticated' => true,
                 'user_device' => $request->device ?? null,
+                'user' => $user,
             ],
         ], 202);
     }

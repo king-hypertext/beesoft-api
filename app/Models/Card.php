@@ -12,16 +12,20 @@ class Card extends Model
     protected $fillable = [
         'card_number',
         'org_user_id',
-        'card_status',
+        'organization_id',
+        'card_status_id',
     ];
-    protected $with = [/* 'org_user', */'user'];
+    protected $with = ['organization', 'user'];
     public function user()
     {
         return $this->belongsTo(OrgUser::class);
     }
-
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
     public function card_status()
     {
-        return $this->belongsTo(UserAccountStatus::class, 'id', 'card_status');
+        return $this->belongsTo(UserAccountStatus::class);
     }
 }

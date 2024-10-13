@@ -19,8 +19,9 @@ class CardFactory extends Factory
     {
         return [
             'card_number' => $this->faker->numerify('######'),
-            'org_user_id' => null,
-            'card_status' => 1,
+            'user_id' => null,
+            'organization_id' => null,
+            'card_status_id' => 1,
         ];
 
     }

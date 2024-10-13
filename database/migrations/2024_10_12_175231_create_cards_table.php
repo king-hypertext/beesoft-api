@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('cards', function (Blueprint $table) {
             $table->id();
             $table->string('card_number')->unique('card_number')->index();
-            $table->foreignId('org_user_id')->nullable()->constrained('org_users'); 
-            $table->foreignId('card_status')->default(1)->constrained('account_status');
+            $table->foreignId('org_user_id')->nullable()->constrained();
+            $table->foreignId('organization_id')->nullable()->constrained();
+            $table->foreignId('card_status_id')->default(1)->constrained('account_status');
             $table->softDeletes();
             $table->timestamps();
         });

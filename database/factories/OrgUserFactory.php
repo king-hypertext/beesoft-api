@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Organization;
+use App\Models\OrgDepartments;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,8 +19,8 @@ class OrgUserFactory extends Factory
     public function definition(): array
     {
         return [
-            'organization_id' => 1,
-            'department_id' => $this->faker->randomElement([6, 7, 8, 9, 10, 12]),
+            'organization_id' => Organization::factory(),
+            'department_id' => OrgDepartments::factory() /* $this->faker->randomElement([6, 7, 8, 9, 10, 12] )*/,
             'full_name' => $this->faker->name,
             'date_of_birth' => $this->faker->date,
             'mum_phone' => $this->faker->optional()->numerify('##########'),

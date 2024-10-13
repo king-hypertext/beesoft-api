@@ -29,27 +29,27 @@ class User extends Authenticatable
     protected $with = ['account_status', 'organization', 'role'];
     public function hasRole(string $role)
     {
-        return $this->user_role->role === $role;
+        return $this->role->role === $role;
     }
     public function isSuperAdmin(): bool|null
     {
-        return $this->user_role->role === 'super_admin' ? true : false;
+        return $this->role->role === 'super_admin' ? true : false;
     }
     public function isAdmin(): bool|null
     {
-        return $this->user_role->role === 'admin' ? true : false;
+        return $this->role->role === 'admin' ? true : false;
     }
     public function isParent(): bool|null
     {
-        return $this->user_role->role === 'parent' ? true : false;
+        return $this->role->role === 'parent' ? true : false;
     }
     public function isSecurity(): bool|null
     {
-        return $this->user_role->role === 'security' ? true : false;
+        return $this->role->role === 'security' ? true : false;
     }
     public function isSecretary(): bool|null
     {
-        return $this->user_role->role === 'secretary' ? true : false;
+        return $this->role->role === 'secretary' ? true : false;
     }
     public function otc(): HasOne
     {
@@ -66,6 +66,9 @@ class User extends Authenticatable
     public function org_parent()
     {
         return $this->hasMany(OrgParent::class);
+    }
+    public function orgUsers(){
+        return $this->hasMany(OrgUser::class);
     }
     public function role(): BelongsTo
     {

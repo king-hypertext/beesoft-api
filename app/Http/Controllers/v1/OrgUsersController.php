@@ -4,8 +4,11 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Card;
+use App\Models\Organization;
 use App\Models\OrgUser;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrgUsersController extends Controller
 {
@@ -14,133 +17,232 @@ class OrgUsersController extends Controller
      */
     public function index()
     {
-        $data = OrgUser::all();
-        if ($data->isEmpty()) {
+        $organization = Auth::user()->organization;
+
+        if (!$organization) {
             return response()->json([
-                'success' => true,
-                'message' => 'No Users found.'
-            ], 404);  // Return HTTP status code 404 Not Found if no OrgUsers found. 400 Bad Request if validation fails. 201 Created if successful. 200 OK if successful. 401 Unauthorized if not authenticated. 403 Forbidden if not authorized. 422 Unprocessable Entity if validation fails. 500 Internal Server Error if server error. 503 Service Unavailable if server is temporarily unavailable. 504 Gateway Timeout if server is temporarily unavailable. 550 Insufficient Storage if server is temporarily unavailable. 599 Client Timeout Error if server is temporarily unavailable. 600 Unavailable for Legal Reasons if server is temporarily unavailable. 601 Web Application Firewall (WAF) Firewall Denied
+                'success' => false,
+                'message' => 'Organization not found',
+            ], 404);
         }
+
+        $users = OrgUser::where('organization_id', $organization->id)->get();
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'success' => false,  // Changed to false to indicate failure
+                'message' => 'No users found',
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
-            'data' => $data
-        ]);
+            'data' => $users,
+        ], 200);
     }
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'organization_id' => 'required|exists:organizations,id',
+        $organization = Auth::user()->organization;
+
+        if (!$organization) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Organization not found',
+            ], 404);
+        }
+
+        $validatedData = $request->validate([
+            'department_id' => 'required|exists:org_departments,id',
             'full_name' => 'required|string',
             'email' => 'nullable|email',
-            'mum_phone' => 'required|numeric', 
-            'dad_phone' => 'required|numeric',
-            'department_id' => 'required|exists:org_departments,id',
-            'gender' => 'required',
-            'parental_action' => 'required',
-            // 'voice',
+            'date_of_birth' => 'required|date',
+            'mum_phone' => 'nullable|numeric',
+            'dad_phone' => 'nullable|numeric',
+            'gender' => 'required|in:1,2',
+            'parental_action' => 'nullable|string',
+            'voice' => 'nullable|file|mimes:audio',
         ]);
-        $voice = '';
-        $data = OrgUser::create([
-            'organization_id' => $request->user()->organization->id,
-            'full_name' => $request->full_name,
-            'email' => $request->email,
-            'mum_phone' => $request->mum_phone,
-            'dad_phone' => $request->dad_phone,
-            'department_id' => $request->department,
-            'gender' => $request->gender,
-            'parental_action' => $request->parental_action,
-            'voice' => $voice,
+
+        if ($request->hasFile('voice')) {
+            $validatedData['voice'] = $request->file('voice')->store('org/users/voice', 'public');
+        }
+
+        $orgUser = OrgUser::create([
+            'organization_id' => $organization->id,
+            'department_id' => $validatedData['department_id'],
+            'full_name' => $validatedData['full_name'],
+            'email' => $validatedData['email'],
+            'date_of_birth' => $validatedData['date_of_birth'],
+            'mum_phone' => $validatedData['mum_phone'],
+            'dad_phone' => $validatedData['dad_phone'],
+            'gender' => $validatedData['gender'],
+            'parental_action' => $validatedData['parental_action'],
+            'voice' => $validatedData['voice'] ?? null,
         ]);
+
         return response()->json([
             'success' => true,
-            'data' => $data
+            'data' => $orgUser,
         ], 201);
     }
+
+
 
     /**
      * Display the specified resource.
      */
-    public function show(OrgUser $orgUser)
+
+    public function show(int $id)
     {
-        if (!$orgUser) {
+        $organization = Auth::user()->organization;
+
+        if (!$organization) {
             return response()->json([
-                'error' => true,
-                'message' => 'User does not exist'
+                'success' => false,
+                'message' => 'Organization not found',
             ], 404);
         }
+
+        $user = $organization->users()->find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User does not exist or does not belong to this organization',
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
-            'data' => $orgUser
+            'data' => $user,
         ]);
     }
-    public function LinkCard($id, Request $request)
+
+
+    public function linkCard(int $user_id, Request $request)
     {
-        $orgUser = OrgUser::find($id);
-        if (!$orgUser) {
+        $request->validate([
+            'card_number' => 'required|numeric|exists:cards,card_number',
+            // 'organization_id'=> 'required|exists:organizations,id'
+        ], [
+            'card_number.required' => 'Card number is required',
+            'card_number.numeric' => 'Card number must be numerical',
+            'card_number.exists' => 'Card does not exist',
+            // 'organization_id.required' => 'Organization ID is required',
+            // 'organization_id.exists' => 'Organization ID does not exist'
+            // 'organization_id.required' => 'Organization ID is required',
+            // 'organization_id.exists' => 'Organization ID does not exist'
+        ]);
+
+        $organization = Auth::user()->organization;
+
+        if (!$organization) {
             return response()->json([
-                'error' => true,
-                'message' => 'User does not exist'
+                'success' => false,
+                'message' => 'Organization not found',
             ], 404);
         }
-        $card = Card::firstOrCreate(['card' => $request->card]);
+
+        $user = $organization->users->find($user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User does not exist or does not belong to this organization',
+            ], 404);
+        }
+
+        $card = Card::firstWhere(['card_number' => $request->card_number,/*  'organization_id' => $organization->id */]);
+
         if (!$card) {
             return response()->json([
-                'error' => true,
-                'message' => 'Card does not exist'
+                'success' => false,
+                'message' => 'Card does not exist',
             ], 404);
         }
-        $orgUser->card_id = $request->card->id;
-        $orgUser->save();
+
+        if ($card->org_user_id && $card->org_user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Card already linked to another user',
+            ], 400);
+        }
+
+        $card->update([
+            'org_user_id' => $user_id,
+            'organization_id' => $organization->id
+        ]);
+
         return response()->json([
             'success' => true,
-            'data' => $orgUser
+            'message' => 'Card linked successfully',
+            // 'data' => $user,
         ]);
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, OrgUser $orgUser)
+    public function update(Request $request, OrgUser $user)
     {
-        $request->validate([
-            'organization_id' => 'required|exists:organizations,id',
+        $validatedData = $request->validate([
+            'department_id' => 'required|exists:org_departments,id',
             'full_name' => 'required|string',
             'email' => 'nullable|email',
-            'mum_phone' => 'required|numeric',
-            'dad_phone' => 'required|numeric',
-            'department_id' => 'required|exists:org_departments,id',
-            'gender' => 'required',
-            'parental_action' => 'required',
-            // 'voice',
+            'date_of_birth' => 'required|date',
+            'mum_phone' => 'nullable|numeric',
+            'dad_phone' => 'nullable|numeric',
+            'gender' => 'required|in:1,2',
+            'parental_action' => 'nullable|string',
+            'voice' => 'nullable|file|mimes:audio',
         ]);
-        $voice = '';
-        $orgUser->update([
-            'organization_id' => $request->user()->organization->id,
-            'full_name' => $request->full_name,
-            'email' => $request->email,
-            'mum_phone' => $request->mum_phone,
-            'dad_phone' => $request->dad_phone,
-            'department_id' => $request->department,
-            'gender' => $request->gender,
-            'parental_action' => $request->parental_action,
-            'voice' => $voice,
-        ]);
+        $organization = $request->user()->organization;
+
+        if (!$organization || !$organization->users->contains($user)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User does not belong to this organization',
+            ], 403);
+        }
+
+
+        if ($request->hasFile('voice')) {
+            $validatedData['voice'] = $request->file('voice')->store('org/users/voice', 'public');
+        } else {
+            $validatedData['voice'] = $user->voice;
+        }
+
+        $user->update($validatedData);
+
         return response()->json([
             'success' => true,
-            'data' => $orgUser->fresh()
+            'data' => $user->fresh(),
         ]);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(OrgUser $orgUser)
+    public function destroy(OrgUser $user)
     {
-        $orgUser->delete();
+        // return $user;
+
+        $organization = Auth::user()->organization;
+
+        if (!$organization || !$organization->users->contains($user)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'you are not allowed to perform this action.',
+            ], 403);
+        }
+        $user->delete();
         return response()->noContent();
     }
 }

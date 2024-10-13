@@ -19,19 +19,19 @@ class OrganizationFactory extends Factory
     public function definition(): array
     {
         return [
-                'name' => $this->faker->company,
-                'post_office_address' => $this->faker->address,
-                'user_id' => 1,
-                'activated_by' => 3,
-                'category_id' => 1,
-                'image' => $this->faker->imageUrl,
-                'email' => $this->faker->unique()->safeEmail,
-                'sms_api_key' => $this->faker->optional()->numerify('SMS-####-####'),
-                'sms_api_secret_key' => $this->faker->optional()->numerify('SMS-####-####'),
-                'sms_provider' => $this->faker->optional()->randomElement(['Twilio', 'Nexmo', 'MessageBird']),
-                'manage_clock_in' => $this->faker->boolean,
-                'signature_clock_in' => $this->faker->boolean,
-                'account_status_id' => 1,    
+            'name' => $this->faker->company,
+            'post_office_address' => $this->faker->address,
+            'user_id' => User::factory(),
+            'activated_by' => 3,
+            'category_id' => 1,
+            'image' => $this->faker->imageUrl,
+            'email' => $this->faker->unique()->safeEmail,
+            'sms_api_key' => $this->faker->optional()->numerify('SMS-####-####'),
+            'sms_api_secret_key' => $this->faker->optional()->numerify('SMS-####-####'),
+            'sms_provider' => $this->faker->optional()->randomElement(['Twilio', 'Nexmo', 'MessageBird']),
+            'manage_clock_in' => $this->faker->boolean,
+            'signature_clock_in' => $this->faker->boolean,
+            'account_status_id' => 1,
         ];
     }
 }

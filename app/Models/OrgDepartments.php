@@ -13,7 +13,6 @@ class OrgDepartments extends Model
         'name',
         'description',
     ];
-    // protected $with = ['organization'];
     public function organization()
     {
         return $this->belongsTo(Organization::class);

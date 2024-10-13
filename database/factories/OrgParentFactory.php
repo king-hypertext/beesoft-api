@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Organization;
 use App\Models\OrgUser;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,9 +21,9 @@ class OrgParentFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            // 'user_id'=> User::factory(),
+            'user_id'=> User::factory(),
             'org_user_id' => OrgUser::factory(),
-            'organization_id' => 1,
+            'organization_id' => Organization::factory(),
             'address' => $this->faker->address,
             'phone_number' => $this->faker->numerify('##########'),
             'account_status' => 1,
