@@ -22,35 +22,40 @@ class Organization extends Model
         'sms_provider',
         'manage_clock_in',
         'signature_clock_in',
-        'account_status',
-        ''
+        'account_status_id',
     ];
-    protected $with = ['account_status', 'children', 'members', 'org_parent', 'user', 'location', 'phone_numbers'];
+    protected $with = ['account_status', 'delegates', /*'users','user', 'location', 'phone_numbers', 'admins', */ 'departments'];
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class); //admin user
     }
-    public function org_parent()
+    public function users()
+    {
+        return $this->hasMany(OrgUser::class); // all users of the organization 
+    }
+    public function category()
+    {
+        return $this->belongsTo(OrganizationCategory::class);
+    }
+    public function account_status()
+    {
+        return $this->belongsTo(UserAccountStatus::class);
+    }
+    public function delegates()
     {
         return $this->hasMany(OrgParent::class);
     }
-    public function children()
+
+    public function admins()
     {
-        return $this->hasMany(Children::class);
-    }
-    public function members()
-    {
-        return $this->hasMany(OrgMember::class);
+        return $this->hasMany(User::class)->where('role_id', 2);
     }
     public function settings()
     {
         // return $this->hasOne();
         return null;
     }
-    public function category()
-    {
-        return $this->hasOne(OrganizationCategory::class);
-    }
+
     public function phone_numbers()
     {
         return $this->hasMany(OrganizationPhone::class);
@@ -59,12 +64,8 @@ class Organization extends Model
     {
         return $this->hasOne(OrganizationLocation::class);
     }
-    public function account_status()
+    public function departments()
     {
-        return $this->belongsTo(UserAccountStatus::class);
-    }
-    public function org_users()
-    {
-        return $this->hasMany(OrgUser::class);
+        return $this->hasMany(OrgDepartments::class);
     }
 }

@@ -12,8 +12,8 @@ class OrgDepartments extends Model
         'organization_id',
         'name',
         'description',
-        'purpose'
     ];
+    // protected $with = ['organization'];
     public function organization()
     {
         return $this->belongsTo(Organization::class);

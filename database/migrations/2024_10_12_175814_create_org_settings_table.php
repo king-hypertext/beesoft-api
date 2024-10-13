@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('organization_settings', function (Blueprint $table) {
+        Schema::create('org_settings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organization_id')->constrained('organizations');
+            $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
             $table->string('clock_in_type')->default('signature')->comment('can be signature or card');
             $table->string('clock_out_type')->nullable()->comment('can be signature or card');
             $table->boolean('card_enabled')->default(false);
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('organization_settings');
+        Schema::dropIfExists('org_settings');
     }
 };

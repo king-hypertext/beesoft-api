@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\OrgDepartments;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,19 +15,37 @@ class OrgDepartmentsController extends Controller
      */
     public function index()
     {
-        $data = OrgDepartments::where('organization_id', '=', Organization::firstWhere('user_id', Auth::id())->id);
+        $org = Auth::user()->organization;
+
+        if (!$org) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Organization not found',
+            ], 404);
+        }
+
+        $data = $org->departments;
+
+        if (!$data->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No departments found for this organization',
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
-            'data' => $data
+            'data' => $data,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        abort(404);
+        abort(403);
     }
 
     /**
@@ -35,35 +54,51 @@ class OrgDepartmentsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'description',
-            'purpose'
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
+
+        $organization = Auth::user()->organization;
+        if (!$organization) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No data found',
+            ], 404);
+        }
+
         $dep = OrgDepartments::create([
-            'organization_id' => Organization::firstWhere('user_id', Auth::id())->id,
+            'organization_id' => $organization->id,
             'name' => $request->name,
             'description' => $request->description ?? null,
-            'purpose' => $request->purpose ?? null,
         ]);
         return response()->json([
             'success' => true,
-            'data' => $dep
+            'message' => 'Department created successfully',
+            'data' => $dep,
         ], 201);
     }
+
 
     /**
      * Display the specified resource.
      */
-    public function show(OrgDepartments $orgDepartments)
+    public function show($id, OrgDepartments $orgDepartments)
     {
-        if (!$orgDepartments) {
+        $department = $orgDepartments->find($id);
+        if (!$department) {
             return response()->json([
                 'message' => 'Department not found',
             ], 404);
         }
+        $org = Organization::firstWhere('user_id', Auth::id());
+        if (!$org) {
+            return response()->json([
+                'message' => 'You are not allowed to view this resource',
+            ], 403);
+        }
         return response()->json([
             'success' => true,
-            'data' => $orgDepartments
+            'data' => $department
         ], 302);
     }
 
@@ -72,37 +107,52 @@ class OrgDepartmentsController extends Controller
      */
     public function edit(OrgDepartments $orgDepartments)
     {
-        abort(404);
+        abort(403);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, OrgDepartments $orgDepartments)
+    public function update(Request $request, OrgDepartments $department)
     {
         $request->validate([
             'name' => 'required',
             'description',
             'purpose'
         ]);
-        $orgDepartments->update([
-            'organization_id' => Organization::firstWhere('user_id', Auth::id())->id,
+        if (!$department) {
+            return response()->json([
+                'message' => 'Department not found',
+            ], 404);
+        }
+        $org = Organization::firstWhere('user_id', Auth::id());
+        if (!$org) {
+            return response()->json([
+                'message' => 'You are not allowed to perform this action',
+            ], 403);
+        }
+        $department->update([
             'name' => $request->name,
             'description' => $request->description ?? null,
-            'purpose' => $request->purpose ?? null,
         ]);
         return response()->json([
             'success' => true,
-            'data' => $orgDepartments->fresh()
+            'data' => $department->fresh()
         ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(OrgDepartments $orgDepartments)
+    public function destroy(OrgDepartments $department)
     {
-        $orgDepartments->delete();
+        $org = Organization::firstWhere('user_id', Auth::id());
+        if (!$org) {
+            return response()->json([
+                'message' => 'You are not allowed to perform this action',
+            ], 403);
+        }
+        $department->delete();
         return response()->noContent();
     }
 }

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('organization_locations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('organization_id')->constrained('organizations');
+        Schema::create('org_location', function (Blueprint $table) {
+            $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
             $table->string('community');
+            $table->string('longitude');
+            $table->string('latitude');
             $table->foreignId('city_id')->constrained('cities');
             $table->foreignId('district_id')->constrained('districts');
-            $table->timestamps();
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('organization_locations');
+        Schema::dropIfExists('org_location');
     }
 };

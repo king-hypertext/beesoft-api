@@ -11,11 +11,11 @@ class UserAccountStatus extends Model
     use HasFactory;
     protected $table = 'account_status';
     protected $fillable = ['status'];
-    public function user()
+    public function user(): HasMany
     {
         return $this->hasMany(User::class);
     }
-    public function organization()
+    public function organization(): HasMany
     {
         return $this->hasMany(Organization::class);
     }

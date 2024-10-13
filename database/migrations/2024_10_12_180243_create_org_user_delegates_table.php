@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('org_parents', function (Blueprint $table) {
+        Schema::create('org_user_delegates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('org_user_id')->constrained('org_users');
             $table->foreignId('organization_id')->constrained('organizations');
             $table->string('address');
-            $table->integer('phone_number');
+            $table->bigInteger('phone_number');
             $table->foreignId('account_status')->default(1)->constrained('account_status');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('org_parents');
+        Schema::dropIfExists('org_user_delegates');
     }
 };

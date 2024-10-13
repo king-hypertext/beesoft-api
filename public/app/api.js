@@ -1,6 +1,8 @@
 (function () {
 
     const API = 'http://localhost/beesoft/api/public/api/e10/v1/';
+    var a = 'https://www.beesofthive.pro/appsUnderDev/api/public/api/e10/v1/';
+    var b = 'https://www.beesofthive.pro/appsUnderDev/api/public/index.php/sanctum/csrf-cookie';
     const tokenUrl = 'http://localhost/beesoft/api/public/sanctum/csrf-cookie';
     axios.interceptors.request.use((config) => {
         const token = localStorage.getItem('AUTH_TOKEN');
@@ -10,10 +12,10 @@
     async function login(email, phoneNumber) {
         try {
             // Get CSRF token
-            await axios.get(tokenUrl);
+            // await axios.get(b);
 
             // Login
-            const response = await axios.post(API + 'login', {
+            const response = await axios.post(a + 'login', {
                 email,
                 phone_number: phoneNumber,
             });
@@ -62,7 +64,7 @@
 
     }
     function insertOrgLocation() {
-       const  payload = {
+        const payload = {
             phone: 44320823402,
         };
         const response = axios.delete(API + 'super-admin/organizations/' + 2);
@@ -92,13 +94,13 @@
     }
     document.getElementById('test').addEventListener('click', function () {
         // validateOTC(localStorage.getItem('otc'));
-        // login('admin@e10.app', '0549289243');
+        login('super.admin@example.com', '0901234567');
         // insertOrg();
         // logout();
         // validateOTC(272172);
         // logout();
         // getUser();
-        insertOrgLocation();
+        // insertOrgLocation();
     });
 
 })()

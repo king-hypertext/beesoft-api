@@ -33,12 +33,12 @@ class AdminController extends Controller
     public function show()
     {
 
-        $user = request()->user();
+        $user = request()->user()?: User::first();
         $org = Organization::firstWhere(['user_id' => $user->id]);
         return response()->json([
             'success' => true,
             'user' => $user,
-            'data' => $org !== null ?  OrganizationResource::collection($org->with('category', 'accout_status')) : 'no data available'
+            // 'data' => $org !== null ?  OrganizationResource::collection($org->with('category', 'account_status')) : 'no data available'
         ]);
     }
 

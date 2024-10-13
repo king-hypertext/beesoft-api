@@ -14,24 +14,19 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('email')->nullable()->unique('user_email');
-            $table->integer('phone_number')->unique('phone_number');
-            $table->foreignId('role_id')->constrained('user_roles')->default('admin');
-            $table->string('fullname');
+            $table->bigInteger('phone_number')->unique('phone_number');
+            $table->foreignId('role_id')->constrained('user_roles')->default('user');
             $table->string('image')->nullable();
             $table->foreignId('account_status_id')->constrained('account_status');
+            $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignId('user_id')->nullable()->constrained()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');

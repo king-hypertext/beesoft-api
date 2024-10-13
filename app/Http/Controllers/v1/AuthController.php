@@ -4,8 +4,10 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\LoginRequest;
+use App\Http\Resources\UserResource;
 use App\Models\OTC;
 use App\Models\User;
+use App\Models\UserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,11 +24,6 @@ class AuthController extends Controller
             'phone_number' => $request->phone_number,
             'email' => $request->email,
         ]);
-        // $query = User::query()->where('phone_number', $request->phone_number);
-        // if ($request->email) {
-        //     $query->where('email', $request->email);
-        // }
-        // $user = $query->first();
 
         if (!$user) {
             return response(
@@ -65,7 +62,7 @@ class AuthController extends Controller
         return response([
             'sucess' => true,
             'data' => [
-                'user' => $user,
+                'user' => new UserResource($user),
                 'otc' => $saved_otc->code,
                 'access_token' => null,
                 'is_authenticated' => false,

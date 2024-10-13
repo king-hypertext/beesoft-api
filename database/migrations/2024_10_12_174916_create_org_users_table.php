@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('org_users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organization_id')->constrained('organizations');
+            $table->foreignId('organization_id')->constrained();
             $table->string('full_name');
             $table->date('date_of_birth');
             $table->string('mum_phone')->nullable();
             $table->string('dad_phone')->nullable();
             $table->string('email')->nullable();
-            $table->foreignId('department_id')->constrained('org_departments');
-            $table->string('gender');
+            $table->foreignId('department_id')->constrained('org_departments'); //
+            $table->enum('gender', [1, 2])->comment('1 for male, 2 for female'); //1 for male, 2 for female
             $table->string('parental_action');
             $table->string('voice')->nullable();
-            $table->foreignId('card_id')->nullable()->constrained('cards');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -3,9 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserAccountStatusResource extends ResourceCollection
+class UserAccountStatusResource extends JsonResource
 {
     /**
      * Transform the resource collection into an array.
@@ -15,6 +15,7 @@ class UserAccountStatusResource extends ResourceCollection
     public function toArray(Request $request): array
     {
         return [
+            'id'=> $this->id,
             'status' => $this->status
         ];
     }
